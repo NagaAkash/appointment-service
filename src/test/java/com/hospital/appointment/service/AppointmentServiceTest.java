@@ -43,7 +43,7 @@ public class AppointmentServiceTest {
 
     @Test
     void testSave() {
-     //   when(restTemplate.getForObject(anyString(), any())).thenReturn(new Object());
+      //  when(restTemplate.getForObject(anyString(), any())).thenReturn(new Object());
         when(repository.save(any(Appointment.class))).thenReturn(appointment);
 
         Appointment saved = service.save(appointment);
@@ -96,7 +96,7 @@ public class AppointmentServiceTest {
 
         // Mocks
         when(repository.findById(1L)).thenReturn(Optional.of(existing));
-      //  when(restTemplate.getForObject(anyString(), any())).thenReturn(new Object());
+       // when(restTemplate.getForObject(anyString(), any())).thenReturn(new Object());
         when(repository.save(any(Appointment.class))).thenReturn(updated);
 
         // Call
@@ -130,10 +130,15 @@ public class AppointmentServiceTest {
 
     @Test
     void testDelete_NotFound() {
+        // Mock
         when(repository.findById(999L)).thenReturn(Optional.empty());
+
+        // Call
         Exception exception = assertThrows(RuntimeException.class, () -> {
             service.delete(999L);
         });
+
+        // Assert
         assertEquals("Appointment not found", exception.getMessage());
         verify(repository, times(1)).findById(999L);
         verify(repository, never()).delete(any());
