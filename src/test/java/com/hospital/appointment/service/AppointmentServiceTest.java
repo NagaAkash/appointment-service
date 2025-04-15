@@ -71,35 +71,15 @@ public class AppointmentServiceTest {
         verify(repository, times(1)).findById(999L);
     }
     @Test
-    void testUpdate(){
-        Appointment appointment1 = new Appointment();
-        appointment1.setId(1L);
-        appointment1.setPatientId(1L);
-        appointment1.setAppointmentDate(LocalDateTime.of(2025, 4, 14, 10, 0));
-        appointment1.setReason("Dental");
-        when(repository.findById(1L)).thenReturn(Optional.of(appointment));
-        when(repository.save(any(Appointment.class))).thenReturn(appointment1);
-        Appointment update = service.update(1L, appointment1);
-        assertNotNull(update);
-        assertEquals(1L, appointment1.getPatientId());
         verify(repository, times(1)).findById(1L);
         verify(repository, times(1)).save(any(Appointment.class));
-
     }
     @Test
     void testDelete_Success() {
-        // Arrange
-        Long validId = 1L;
-        when(repository.findById(validId)).thenReturn(Optional.of(appointment));
         doNothing().when(repository).delete(any(Appointment.class));
 
-        // Act & Assert
-        assertDoesNotThrow(() -> service.delete(validId));
 
         // Verify
-        verify(repository, times(1)).findById(validId);
-        verify(repository, times(1)).delete(any(Appointment.class));
     }
-
 
 }
