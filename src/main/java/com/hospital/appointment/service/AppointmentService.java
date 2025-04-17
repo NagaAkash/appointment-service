@@ -1,20 +1,33 @@
 package com.hospital.appointment.service;
 
+import com.hospital.appointment.client.PatientClient;
 import com.hospital.appointment.entity.Appointment;
 import com.hospital.appointment.repository.AppointmentRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AppointmentService {
+    private static final Logger logger = LoggerFactory.getLogger(AppointmentService.class);
 
     @Autowired
     private AppointmentRepository repository;
 
+    @Autowired
+    private PatientClient patientClient;
+
     public Appointment save(Appointment appointment) {
+        try {
+            patientClient.getPatient(appointment.getPatientId());
+            logger.info("Patient ID {} validated", appointment.getPatientId());
+        } catch (Exception e) {
+            logger.error("Invalid patient ID: {}", appointment.getPatientId());
+            throw new IllegalArgumentException("Patient not found for ID: " + appointment.getPatientId());
+        }
         return repository.save(appointment);
     }
 
@@ -22,16 +35,25 @@ public class AppointmentService {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
     }
+
     public List<Appointment> findAll() {
         return repository.findAll();
     }
-    public Appointment update(long id,Appointment appointment){
-        Optional<Appointment> byId = repository.findById(id);
-        Appointment appointment1 = byId.get();
-        appointment1.setPatientId(appointment.getPatientId());
-        appointment1.setAppointmentDate(appointment.getAppointmentDate());
-        appointment1.setReason(appointment.getReason());
-        return repository.save(appointment1);
+
+    public Appointment update(Long id, Appointment updated) {
+        Appointment existing = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+        try {
+            patientClient.getPatient(updated.getPatientId());
+            logger.info("Patient ID {} validated for update", updated.getPatientId());
+        } catch (Exception e) {
+            logger.error("Invalid patient ID: {}", updated.getPatientId());
+            throw new IllegalArgumentException("Patient not found for ID: " + updated.getPatientId());
+        }
+        existing.setPatientId(updated.getPatientId());
+        existing.setAppointmentDate(updated.getAppointmentDate());
+        existing.setReason(updated.getReason());
+        return repository.save(existing);
     }
 
     public void delete(Long id) {
@@ -39,6 +61,4 @@ public class AppointmentService {
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
         repository.delete(existing);
     }
-
-
 }
