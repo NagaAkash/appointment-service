@@ -51,4 +51,11 @@ public class AppointmentController {
         logger.info("Deleted the appointment with ID: {}",id);
         service.delete(id);
     }
+    @GetMapping("/by-name/{firstName}")
+    @ResponseStatus(HttpStatus.OK)
+    public Appointment getByName(@PathVariable("firstName")String firstName){
+        Appointment opName = service.getOpName(firstName);
+                return opName;
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.hospital.appointment.service;
 
 import com.hospital.appointment.client.PatientClient;
+import com.hospital.appointment.dtos.Patient;
 import com.hospital.appointment.entity.Appointment;
 import com.hospital.appointment.repository.AppointmentRepository;
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AppointmentService {
@@ -36,6 +38,7 @@ public class AppointmentService {
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
     }
 
+
     public List<Appointment> findAll() {
         return repository.findAll();
     }
@@ -61,4 +64,14 @@ public class AppointmentService {
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
         repository.delete(existing);
     }
+  public Appointment getOpName(String firstName){
+      Patient patient = patientClient.getPatientByName(firstName);
+      if(patient != null && patient.getFirstName().equalsIgnoreCase(firstName)){
+          Optional<Appointment> byPatientId = repository.findByPatientId(patient.getId());
+          return byPatientId.orElseThrow(() -> new RuntimeException("No appointment found for patient: " + firstName));
+      }
+
+      throw new RuntimeException("No patient found with name: " + firstName);
+  }
+
 }
